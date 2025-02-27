@@ -309,15 +309,16 @@ class Trainer(AbstractTrainer):
             scores = self.model.full_sort_predict(batched_data)
             masked_items = batched_data[1]
             # mask out pos items    
-            print(f'masked_items shape: {masked_items.shape}')
+            # print(f'masked_items shape: {masked_items.shape}')
 
-            print(f'masked_items[0]: {masked_items[0]}')
-            print(f'masked_items[1]: {masked_items[1]}')
+            # print(f'masked_items[0]: {masked_items[0]}')
+            # print(f'masked_items[1]: {masked_items[1]}')
 
             scores[masked_items[0], masked_items[1]] = -1e10
 
             # mask all warm items
-
+            for _, batched_train_data in enumerate(train_data):
+                print(f'batched_train_data shape: {batched_train_data.shape}')
 
 
             # rank and get top-k
