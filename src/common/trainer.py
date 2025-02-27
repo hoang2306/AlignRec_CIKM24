@@ -307,7 +307,7 @@ class Trainer(AbstractTrainer):
         for batch_idx, batched_data in enumerate(eval_data):
             # predict: interaction without item ids
             scores = self.model.full_sort_predict(batched_data)
-            print(f'shape batched_data: {batched_data.shape}')
+            print(f'shape batched_data: {batched_data[0]}')
             masked_items = batched_data[1]
             # mask out pos items    
             print(f'masked_items shape: {masked_items.shape}')
