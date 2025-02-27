@@ -188,7 +188,7 @@ class Trainer(AbstractTrainer):
             #    break
         return total_loss, loss_batches
 
-    def _valid_epoch(self, valid_data):
+    def _valid_epoch(self, train_data, valid_data):
         r"""Valid the model with valid data
 
         Args:
@@ -198,7 +198,7 @@ class Trainer(AbstractTrainer):
             float: valid score
             dict: valid result
         """
-        valid_result = self.evaluate(valid_data)
+        valid_result = self.evaluate(train_data, valid_data)
         valid_score = valid_result[self.valid_metric] if self.valid_metric else valid_result['NDCG@20']
         return valid_score, valid_result
 
@@ -254,7 +254,7 @@ class Trainer(AbstractTrainer):
             # eval: To ensure the test result is the best model under validation data, set self.eval_step == 1
             if (epoch_idx + 1) % self.eval_step == 0:
                 valid_start_time = time()
-                valid_score, valid_result = self._valid_epoch(valid_data)
+                valid_score, valid_result = self._valid_epoch(train_data, valid_data)
                 self.best_valid_score, self.cur_step, stop_flag, update_flag = early_stopping(
                     valid_score, self.best_valid_score, self.cur_step,
                     max_step=self.stopping_step, bigger=self.valid_metric_bigger)
@@ -263,7 +263,7 @@ class Trainer(AbstractTrainer):
                                      (epoch_idx, valid_end_time - valid_start_time, valid_score)
                 valid_result_output = 'valid result: \n' + dict2str(valid_result)
                 # test
-                _, test_result = self._valid_epoch(test_data)
+                _, test_result = self._valid_epoch(train_data, test_data)
                 if verbose:
                     self.logger.info(valid_score_output)
                     self.logger.info(valid_result_output)
@@ -295,7 +295,7 @@ class Trainer(AbstractTrainer):
 
 
     @torch.no_grad()
-    def evaluate(self, eval_data, is_test=False, idx=0):
+    def evaluate(self, train_data, eval_data, is_test=False, idx=0):
         r"""Evaluate the model based on the eval data.
         Returns:
             dict: eval result, key is the eval metric and value in the corresponding metric value
@@ -309,7 +309,16 @@ class Trainer(AbstractTrainer):
             scores = self.model.full_sort_predict(batched_data)
             masked_items = batched_data[1]
             # mask out pos items
+
+            print(f'masked_items[0]: {masked_items[0]}')
+            print(f'masked_items[1]: {masked_items[1]}')
+
             scores[masked_items[0], masked_items[1]] = -1e10
+
+            # mask all warm items
+
+
+
             # rank and get top-k
             _, topk_index = torch.topk(scores, max(self.config['topk']), dim=-1)  # nusers x topk
             batch_matrix_list.append(topk_index)
