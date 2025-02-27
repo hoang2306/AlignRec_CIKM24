@@ -319,7 +319,8 @@ class Trainer(AbstractTrainer):
             # mask all warm items
             for _, batched_train_data in enumerate(train_data):
                 print(f'batched_train_data shape: {batched_train_data.shape}')
-
+                user_e, pos_item, neg_item = batched_train_data[0], batched_train_data[1], batched_train_data[2]
+                scores[user_e, pos_item] = -1e10
 
             # rank and get top-k
             _, topk_index = torch.topk(scores, max(self.config['topk']), dim=-1)  # nusers x topk
