@@ -289,7 +289,7 @@ class ALIGNREC(GeneralRecommender):
         u_embeddings = restore_user_e[user]
 
         # dot with all item embedding to accelerate
-        scores = torch.matmul(u_embeddings, restore_item_e.transpose(0, 1))
+        scores = torch.matmul(u_embeddings, restore_item_e.transpose(0, 1)) # [bs, n_item]
         return scores
 
     def init_user_hist_info(self, dataloader):
