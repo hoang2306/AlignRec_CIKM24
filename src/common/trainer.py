@@ -307,21 +307,24 @@ class Trainer(AbstractTrainer):
         for batch_idx, batched_data in enumerate(eval_data):
             # predict: interaction without item ids
             scores = self.model.full_sort_predict(batched_data)
-            print(f'shape batched_data: {batched_data[0]}') # user list 
+            # print(f'shape batched_data: {batched_data[0]}') # user list 
             masked_items = batched_data[1] # item list ? 
             # mask out pos items    
-            print(f'masked_items shape: {masked_items.shape}')
+            # print(f'masked_items shape: {masked_items.shape}')
 
-            print(f'masked_items[0]: {masked_items[0]}')
+            # print(f'masked_items[0]: {masked_items[0]}')
             # print(f'masked_items[1]: {masked_items[1]}')
 
             scores[masked_items[0], masked_items[1]] = -1e10
 
+            print(f'scores: {scores.shape}')
+            print(f'scores: {scores}')
+
             # mask all warm items
-            for _, batched_train_data in enumerate(train_data):
-                print(f'batched_train_data shape: {batched_train_data.shape}')
-                user_e, pos_item, neg_item = batched_train_data[0], batched_train_data[1], batched_train_data[2]
-                scores[user_e, pos_item] = -1e10
+            # for _, batched_train_data in enumerate(train_data):
+            #     print(f'batched_train_data shape: {batched_train_data.shape}')
+            #     user_e, pos_item, neg_item = batched_train_data[0], batched_train_data[1], batched_train_data[2]
+            #     scores[user_e, pos_item] = -1e10
 
             # rank and get top-k
             _, topk_index = torch.topk(scores, max(self.config['topk']), dim=-1)  # nusers x topk
